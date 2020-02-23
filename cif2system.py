@@ -155,7 +155,7 @@ def initialize_system(filename, charges=False):
 
 	for b in bonds:
 		
-		dist,sym = PBC3DF_sym(G.node[index_key[b[0]]]['fractional_position'], G.node[index_key[b[1]]]['fractional_position'])
+		dist,sym = PBC3DF_sym(G.nodes[index_key[b[0]]]['fractional_position'], G.nodes[index_key[b[1]]]['fractional_position'])
 		
 		if np.any(sym):
 			sym_code = '1_' + ''.join(map(str, map(int, sym + 5)))
@@ -171,10 +171,10 @@ def initialize_system(filename, charges=False):
 		e0,e1,data = e
 		nbors0 = list(G.neighbors(e0))
 		nbors1 = list(G.neighbors(e1))
-		nbors0_symbols = [G.node[nb]['element_symbol'] for nb in nbors0]
-		nbors1_symbols = [G.node[nb]['element_symbol'] for nb in nbors1]
-		es0 = G.node[e0]['element_symbol']
-		es1 = G.node[e1]['element_symbol']
+		nbors0_symbols = [G.nodes[nb]['element_symbol'] for nb in nbors0]
+		nbors1_symbols = [G.nodes[nb]['element_symbol'] for nb in nbors1]
+		es0 = G.nodes[e0]['element_symbol']
+		es1 = G.nodes[e1]['element_symbol']
 		bond_type = data['bond_type']
 
 		if es0 == 'O' and es1 == 'C' and any(i in metals for i in nbors0_symbols) and bond_type != 'A':
@@ -233,13 +233,13 @@ def duplicate_system(system, replications):
 
 	NG = G.copy()
 	edge_remove_list = []
-	max_ind = max([d['index'] for n,d in G.nodes(data=True)])
+	max_ind = max([d['index'] for n,d in G.nodess(data=True)])
 	count = max_ind
-	equivalency = dict((n,[]) for n in G.node())
+	equivalency = dict((n,[]) for n in G.nodes())
 
 	for trans_vec in trans_vecs:
 		
-		for node, node_data in G.node(data=True):
+		for node, node_data in G.nodes(data=True):
 
 			count += 1
 			
@@ -257,7 +257,7 @@ def duplicate_system(system, replications):
 			translated_fvec = fvec + trans_vec
 			fvec = np.array([c/d for c,d in zip(fvec, replications)])
 			translated_fvec = np.array([c/d for c,d in zip(translated_fvec, replications)])
-			NG.node[node]['fractional_position'] = fvec
+			NG.nodes[node]['fractional_position'] = fvec
 			cvec = np.dot(unit_cell, translated_fvec)
 			
 			equivalency[original_atom].append(new_index)
@@ -269,14 +269,14 @@ def duplicate_system(system, replications):
 		bond_type = edge_data['bond_type']
 		length = edge_data['length']
 		
-		fvec_n0 = NG.node[n0]['fractional_position']
-		fvec_n1 = NG.node[n1]['fractional_position']
+		fvec_n0 = NG.nodes[n0]['fractional_position']
+		fvec_n1 = NG.nodes[n1]['fractional_position']
 
 		for eq0 in equivalency[n0]:
 			for eq1 in equivalency[n1]:
 
-				fvec_eq0 = NG.node[eq0]['fractional_position']
-				fvec_eq1 = NG.node[eq1]['fractional_position']
+				fvec_eq0 = NG.nodes[eq0]['fractional_position']
+				fvec_eq1 = NG.nodes[eq1]['fractional_position']
 				
 				dist_e0e1,sym_e0e1 = PBC3DF_sym(fvec_eq0, fvec_eq1)
 				dist_e0e1 = np.linalg.norm(np.dot(unit_cell, dist_e0e1))
@@ -362,7 +362,7 @@ def replication_determination(system, replication, cutoff):
 		min_atoms = int(replication.split(':')[-1])
 
 		G = system['graph']
-		Natoms = float(len(G.nodes()))
+		Natoms = float(len(G.nodess()))
 		dmin = int(math.ceil(min_atoms/Natoms))
 
 		dsep0 = int(math.ceil((2*cutoff)/dist0))
@@ -505,7 +505,7 @@ def write_cif_from_system(system, filename):
 		out.write('_atom_site_charge' + '\n')
 
 		index_dict = {}
-		for n,data in G.nodes(data=True):
+		for n,data in G.nodess(data=True):
 			vec = data['fractional_position']
 			es = data['element_symbol']
 			ind = es + str(data['index'])

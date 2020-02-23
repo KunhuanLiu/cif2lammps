@@ -138,8 +138,8 @@ class UFF4MOF(force_field):
 					raise ValueError('No UFF4MOF type identified for ' + element_symbol + 'with neighbors ' + ' '.join(nbor_symbols))
 			
 			types.append((ty, element_symbol, mass))
-			SG.node[name]['force_field_type'] += ty
-			SG.node[name]['hybridization'] = hyb
+			SG.nodes[name]['force_field_type'] += ty
+			SG.nodes[name]['hybridization'] = hyb
 
 		types = set(types)
 		Ntypes = len(types)
@@ -249,8 +249,8 @@ class UFF4MOF(force_field):
 		if mult == 0.0:
 			return 'NA'
 
-		nbors_j = [UFF4MOF_atom_parameters[SG.node[n]['force_field_type']][7] for n in SG.neighbors(node_j) if n != node_k]
-		nbors_k = [UFF4MOF_atom_parameters[SG.node[n]['force_field_type']][7] for n in SG.neighbors(node_k) if n != node_j]
+		nbors_j = [UFF4MOF_atom_parameters[SG.nodes[n]['force_field_type']][7] for n in SG.neighbors(node_j) if n != node_k]
+		nbors_k = [UFF4MOF_atom_parameters[SG.nodes[n]['force_field_type']][7] for n in SG.neighbors(node_k) if n != node_j]
 
 		# cases taken from the DREIDING paper (same cases, different force constants for UFF)
 		# they are not done in order to save some lines, I don't know of a better way for doing
@@ -371,8 +371,8 @@ class UFF4MOF(force_field):
 		for e in SG.edges(data=True):
 
 			i,j,data = e
-			fft_i = SG.node[i]['force_field_type']
-			fft_j = SG.node[j]['force_field_type']
+			fft_i = SG.nodes[i]['force_field_type']
+			fft_j = SG.nodes[j]['force_field_type']
 			bond_type = data['bond_type']
 
 			# look for the bond order, otherwise use the convention based on the bond type
@@ -431,11 +431,11 @@ class UFF4MOF(force_field):
 				j = name
 				i, k = comb
 
-				fft_i = SG.node[i]['force_field_type']
-				fft_j = SG.node[j]['force_field_type']
-				fft_k = SG.node[k]['force_field_type']
+				fft_i = SG.nodes[i]['force_field_type']
+				fft_j = SG.nodes[j]['force_field_type']
+				fft_k = SG.nodes[k]['force_field_type']
 
-				j_elem = SG.node[j]['element_symbol']
+				j_elem = SG.nodes[j]['element_symbol']
 
 
 				octa_metals = ('Al6+3', 'Sc6+3', 'Ti4+2', 'V_4+2', 'V_6+3', 'Cr4+2', 
@@ -443,9 +443,9 @@ class UFF4MOF(force_field):
 							   'Cu4+2', 'Zn4+2')
 
 				if fft_j in octa_metals:
-					i_coord = SG.node[i]['cartesian_position']
-					j_coord = SG.node[j]['cartesian_position']
-					k_coord = SG.node[k]['cartesian_position']
+					i_coord = SG.nodes[i]['cartesian_position']
+					j_coord = SG.nodes[j]['cartesian_position']
+					k_coord = SG.nodes[k]['cartesian_position']
 					ij = i_coord - j_coord
 					jk = j_coord - k_coord
 					cosine_angle = np.dot(ij,jk) / (np.linalg.norm(ij) * np.linalg.norm(jk))
@@ -514,12 +514,12 @@ class UFF4MOF(force_field):
 		for e in SG.edges(data=True):
 
 			j,k = e[0:2]
-			fft_j = SG.node[j]['force_field_type']
-			fft_k = SG.node[k]['force_field_type']
-			hyb_j = SG.node[j]['hybridization']
-			hyb_k = SG.node[k]['hybridization']
-			els_j = SG.node[j]['element_symbol']
-			els_k = SG.node[k]['element_symbol']
+			fft_j = SG.nodes[j]['force_field_type']
+			fft_k = SG.nodes[k]['force_field_type']
+			hyb_j = SG.nodes[j]['hybridization']
+			hyb_k = SG.nodes[k]['hybridization']
+			els_j = SG.nodes[j]['element_symbol']
+			els_k = SG.nodes[k]['element_symbol']
 			bond_order = e[2]['bond_order']
 			nodes = (j,k)
 
@@ -576,7 +576,7 @@ class UFF4MOF(force_field):
 				
 				fft_i = data['force_field_type']
 				hyb_i = data['hybridization']
-				fft_nbors = tuple(sorted([SG.node[m]['force_field_type'] for m in nbors]))
+				fft_nbors = tuple(sorted([SG.nodes[m]['force_field_type'] for m in nbors]))
 				O_2_flag = False
 				# force constant is much larger if j,k, or l is O_2
 				if 'O_2' in fft_nbors or 'O_2_M' in fft_nbors:
