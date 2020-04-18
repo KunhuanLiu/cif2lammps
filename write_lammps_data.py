@@ -80,7 +80,7 @@ def lammps_inputs(args):
 	yz = np.round((b * c*np.cos(math.radians(alpha)) - xy*xz)/ly, 8)
 	lz = np.round(np.sqrt(c**2 - xz**2 - yz**2), 8)
 
-	suffix = cifname.split('/')[-1].split('.')[0] + '_' + replication
+	suffix = cifname.split('/')[-1].split(os.sep)[-1].split('.')[0] + '_' + replication
 	data_name = 'data.' + suffix
 
 	with open(outdir + os.sep + data_name, 'w') as data:
