@@ -7,6 +7,7 @@ import os
 import re
 import sys
 import time
+from pathlib import Path
 from write_lammps_data import lammps_inputs
 from write_GULP_inputs import GULP_inputs
 
@@ -17,7 +18,7 @@ from Dreiding_construction import Dreiding
 
 force_fields = ['UFF4MOF']
 
-def serial_conversion(directory, force_field=UFF4MOF, ff_string='UFF4MOF', outdir='unopt_lammps_data', charges=False, parallel=False, replication='1x1x1'):
+def serial_conversion(directory, force_field=UFF4MOF, ff_string='UFF4MOF', outdir='unopt_lammps_data', charges=False, parallel=False, replication='cutoff'):
 
 	try:
 		os.mkdir(outdir)
@@ -32,6 +33,26 @@ def serial_conversion(directory, force_field=UFF4MOF, ff_string='UFF4MOF', outdi
 		lammps_inputs([cif, force_field, ff_string, outdir, charges, replication])
 
 	print('--- cifs in', directory, 'converted and placed in', outdir, '---')
+
+# =============================================================================
+# def Kunhuan_serial_conversion(directory, force_field=UFF4MOF, ff_string='UFF4MOF', outdir='unopt_lammps_data', charges=False, parallel=False, replication='cutoff'):
+# 
+# 	try:
+# 		os.mkdir(outdir)
+# 	except OSError:
+# 		pass
+# 
+# 	print('conversion running serial on a single core')
+# 
+# 	cifs = sorted(glob.glob(Path(directory + '/*.cif')))
+# 	for cif in cifs:
+# 		print('converting ', cif, '...')
+# 		lammps_inputs([cif, force_field, ff_string, outdir, charges, replication])
+# 
+# 	print('--- cifs in', directory, 'converted and placed in', outdir, '---')
+# =============================================================================
+
+
 
 def parallel_conversion(directory, force_field=UFF4MOF, ff_string='UFF4MOF', outdir='unopt_lammps_data', charges=False, parallel=True, replication='1x1x1'):
 

@@ -233,7 +233,7 @@ def duplicate_system(system, replications):
 
 	NG = G.copy()
 	edge_remove_list = []
-	max_ind = max([d['index'] for n,d in G.nodess(data=True)])
+	max_ind = max([d['index'] for n,d in G.nodes(data=True)])
 	count = max_ind
 	equivalency = dict((n,[]) for n in G.nodes())
 

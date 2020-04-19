@@ -335,4 +335,57 @@ def lammps_inputs(args):
 		infile.write('box             tilt large\n')
 		infile.write('read_data       ' + data_name + '\n')
 		infile.write('\n')
+		etol_='1.0e-7'
+		ftol_='1.0e-8'
+		maxiter_='10000'
+		absEtol='1e-8'
+		print("!!! parameters:  etol={},  maxiter={},  absEtol={} !!!".format(etol_,maxiter_,absEtol))
+		tempstr='''
+				thermo_style     custom step temp pe press pxx pyy pzz pxy pxz pyz cella cellb cellc cellalpha cellbeta cellgamma vol
+				thermo_modify    norm no flush yes
+				#------------------------------------------------------------------------------# 
+				# force field and minimization specific settings 
+				#------------------------------------------------------------------------------#                 
+				variable		etol equal {etol_}
+				variable		ftol equal {ftol_}
+				variable		maxiter equal {maxiter_}
+				variable		maxeval equal {maxiter_}
+				variable		tmp equal pe
+				variable		print_every equal 50
 
+				thermo			${{print_every}}
+				timestep 		1.0
+				min_style		fire
+				minimize		${{etol}} ${{ftol}} ${{maxiter}} ${{maxeval}}
+
+				variable 		count equal 0
+				print count=${{count}}
+				
+				label 			loop_step
+				variable		count equal ${{count}}+1
+
+				#-----------cg w/ box relax-----------#
+				min_style 		cg
+				minimize		${{etol}} ${{ftol}} ${{maxiter}} ${{maxeval}}
+				variable		Cg equal ${{tmp}}
+
+				#-----------fire w/o box relax-----------#
+
+				min_style		fire
+				minimize		${{etol}} ${{ftol}} ${{maxiter}} ${{maxeval}}
+				variable		Fire equal ${{tmp}}
+
+				variable		absE equal "abs(v_Cg - v_Fire)"
+
+				if "${{absE}} < {absEtol}" then &
+				    "print gg" &
+				    "write_data {suffix}.optResults" &
+				    quit &
+				else &
+				    "print 'No, the energy difference=$(v_Cg-v_Fire)'" &
+				    "jump SELF loop_step"
+
+				'''.format(**locals()).strip()
+		#breakpoint()
+		for x in tempstr.splitlines():
+			infile.write("%s\n" % x.lstrip('\t').rstrip())
