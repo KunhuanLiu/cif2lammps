@@ -339,7 +339,8 @@ def lammps_inputs(args):
 		ftol_='1.0e-8'
 		maxiter_='10000'
 		absEtol='1e-8'
-		print("!!! parameters:  etol={},  maxiter={},  absEtol={} !!!".format(etol_,maxiter_,absEtol))
+		vmax=1e-3
+		print("!!! parameters:  etol={},  maxiter={},  absEtol={}, vmax={}% !!!".format(etol_,maxiter_,absEtol,str(vmax*100)))
 		tempstr='''
 				thermo_style     custom step temp pe press pxx pyy pzz pxy pxz pyz cella cellb cellc cellalpha cellbeta cellgamma vol
 				thermo_modify    norm no flush yes
@@ -351,7 +352,7 @@ def lammps_inputs(args):
 				variable		maxiter equal {maxiter_}
 				variable		maxeval equal {maxiter_}
 				variable		tmp equal pe
-				variable		print_every equal 50
+				variable		print_every equal 100
 
 				thermo			${{print_every}}
 				timestep 		1.0
@@ -365,12 +366,13 @@ def lammps_inputs(args):
 				variable		count equal ${{count}}+1
 
 				#-----------cg w/ box relax-----------#
+				fix 3			all box/relax aniso 0.0 scalexy yes scalexz yes scaleyz yes vmax {vmax}
 				min_style 		cg
 				minimize		${{etol}} ${{ftol}} ${{maxiter}} ${{maxeval}}
 				variable		Cg equal ${{tmp}}
 
 				#-----------fire w/o box relax-----------#
-
+				unfix 3
 				min_style		fire
 				minimize		${{etol}} ${{ftol}} ${{maxiter}} ${{maxeval}}
 				variable		Fire equal ${{tmp}}

@@ -90,12 +90,12 @@ def parallel_GULP_conversion(directory, force_field=UFF4MOF, outdir='GULP_inputs
 
 	print('--- cifs in', directory, 'converted and placed in', outdir, '---')
 
-def run_conversion():
+def run_conversion(replication):
 
 	arguments = sys.argv[1:]
 	directory = arguments[0]
 
-	optional_arguments = {}
+	optional_arguments = {'replication':replication}
 	for arg in arguments[1:]:
 		if '--' in arg and 'parallel':
 			parse_arg = re.sub('[--]', '', arg).split('=')
@@ -139,5 +139,7 @@ def run_conversion():
 
 start_time = time.time()
 if __name__ == '__main__': 
-	run_conversion()
+	replication='1x1x1'
+	#replication='cutoff'
+	run_conversion(replication)
 print("conversion took %s seconds " % np.round((time.time() - start_time), 3))

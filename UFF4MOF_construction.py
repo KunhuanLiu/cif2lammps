@@ -138,6 +138,9 @@ class UFF4MOF(force_field):
 					raise ValueError('No UFF4MOF type identified for ' + element_symbol + 'with neighbors ' + ' '.join(nbor_symbols))
 			
 			types.append((ty, element_symbol, mass))
+			if ty is None:
+				print('ty is None.')
+				breakpoint();
 			SG.nodes[name]['force_field_type'] += ty
 			SG.nodes[name]['hybridization'] = hyb
 
